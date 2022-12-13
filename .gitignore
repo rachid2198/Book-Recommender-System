@@ -8,3 +8,4 @@ myenv/
 *.pyc
 staticfiles/
 fixture/
+django/
