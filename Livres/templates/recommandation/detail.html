@@ -1,0 +1,379 @@
+{% extends 'recommandation/base.html' %}
+{% load staticfiles %}
+{% load my_templatetag %}
+{% block content %}
+
+
+<div class="container">
+
+    <div class="row">
+        <!--gauche -->
+        <div class="container col-lg-8 col-md-12" >
+            <div class="row">
+                <div class="row">
+                    <div class="box">
+                        <div class="col-lg-12">
+                            <h3>
+                                <a href="{% url 'Livres:detail' livre_id=livre.id %}"> {{ livre.titre }} </a>
+                            </h3>
+                            <div class="container col-lg-12">
+                                <div class="row">
+                                    <div class="col-lg-4">
+                                        <a href=" {% url 'Livres:detail' livre_id=livre.id %}">
+                                            <img class="img-responsive img-border img-left" src="{{ livre.image_livre }}" alt="{{ livre.titre }}" style=" max-width: 150px">
+                                        </a>
+                                        <span class="fa fa-heart" id="{{livre.id}}favoris" style="color:gray;font-size:25px" onclick="favoris({{livre.id}},{{user.id}})"></span>
+
+                                        <input type="hidden" id="inFavoris{{livre.id}}" value="{% in_Favoris livre user %}">
+                                        <br>
+                                        <span class="fa fa-clock-o" id="{{livre.id}}aPlusTard" style="color:gray;font-size:25px" onclick="aPlusTard({{livre.id}},{{user.id}})"></span>
+
+                                        <input type="hidden" id="inPlusTard{{livre.id}}" value="{% in_aLirePlusTard livre user %}">
+                                    </div>
+
+                                    <div class="col-lg-8">
+                                        <p>Auteur :
+                                            {% for auteur in livre.auteurs.all %}
+                                            <a href="{% url 'Livres:livre_par_auteur' auteur_id=auteur.id %}"> {{ auteur.nom}}</a>
+                                            {% endfor %}
+                                        </p>
+                                        <p>Date de publication originale : {{ livre.date_parution }}</p>
+                                        <p>Genres :
+                                            {% for genre in livre.genres.all %}
+                                            <a href="{% url 'Livres:genre_livre' genre_nom=genre.pk %}"> {{ genre.nom}} </a>
+                                            {% endfor %}
+
+                                        </p>
+                                        <div class="star-rating">
+                                            <form id="livre" action="" method="post">
+                                                {% csrf_token %}
+                                                <span class="fa fa-star-o" data-rating="1" onclick="submitform({{livre.id}},1)"></span>
+                                                <span class="fa fa-star-o" data-rating="2" onclick="submitform({{livre.id}},2)"></span>
+                                                <span class="fa fa-star-o" data-rating="3" onclick="submitform({{livre.id}},3)"></span>
+                                                <span class="fa fa-star-o" data-rating="4" onclick="submitform({{livre.id}},4)"></span>
+                                                <span class="fa fa-star-o" data-rating="5" onclick="submitform({{livre.id}},5)"></span>
+                                                <input type="hidden" id="bookRating" name="book" value="{{livre.id}}"/>
+                                                <input type="hidden" id="userRating" name="user" value="{{user.username}}"/>
+                                                <input type="hidden" id="noteRating" value="{% get_obj livre user %}"/>
+                                            </form>
+                                        </div>
+
+                                        <hr class="detail-separator">
+
+                                        <div>
+                                            <p>Description :</p>
+                                            <span class="more">{{ livre.desctiption }}</span>
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--Comment box  ------------------------------------------------------------------------------->
+
+                    <div class="box ">
+                        <div class="comments-app " ng-app="commentsApp" ng-controller="CommentsController as cmntCtrl">
+
+
+                            <!-- From -->
+                            <div class="comment-form ">
+                                {% csrf_token %}
+
+                                <form class="form"  id="form" name="form" ng-submit="form.$valid && cmntCtrl.addComment()" novalidate>
+                                    <div class="form-row" > <h6>Commentaire :</h6><br>
+                                        <textarea
+                                                name="contenue"
+                                                id="contenue"
+                                                class="input"
+                                                ng-model="cmntCtrl.comment.text"
+                                                placeholder="Ajouter un commentaire..."
+                                                required>
+                                        </textarea>
+
+                                        <input type="hidden" id="book" name="book" value="{{livre.id}}"/>
+                                        <input type="hidden" id="user" name="user" value="{{user.username}}"/>
+                                        <input type="hidden" id="note" value="{% get_obj livre user %}"/>
+                                    </div>
+
+                                    <div class="form-row">
+                                        <input type="button" value="Submit" onclick="getComment()" class="btn btn-light"/>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <!-- Comments List -->
+                            <div class="comments"  id="fake_comment" >
+                                <!-- Comment -->
+
+                                <!-- Comment - Dummy -->
+
+
+
+                                {% for comment in comments %}
+                                <div class="comment">
+                                    <!-- Comment Box -->
+                                    <div class="comment-box">
+                                        <div class="comment-text">{{comment.contenue}} </div>
+                                        <div class="comment-footer">
+                                            <div class="comment-info">
+                                                <span class="comment-author">{{comment.user}}</span>
+                                                <span class="comment-date">{{comment.date}}</span>
+                                                <span class="comment-date" >Note:{{comment.note}}</span>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+
+
+
+        <!--/gauche -->
+
+
+        <!--droite -->
+
+        <div class="container col-lg-3 col-md-12">
+            <div class="container-fluid">
+                <div class="row">
+                    <!--box droite 1 -->
+                    <div class="col-md-12">
+                        <div class="box ">
+
+                            <table class="table table-striped">
+                                <thead>
+                                <tr>
+                                    <th scope="col">Les mieux notées</th>
+
+
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for livre in top_livres %}
+                                <tr>
+                                    <td><a href="{% url 'Livres:detail' livre_id=livre.id %}"> {{ livre.titre }} </a></td>
+
+                                </tr>
+                                {% endfor %}
+
+                                </tbody>
+                            </table>
+
+                        </div>
+                    </div>
+
+
+
+                    <!--box droite 2 -->
+                    <div class="col-md-12">
+                        <div class="box ">
+
+                            <table class="table table-striped">
+                                <thead>
+                                <tr>
+                                    <th scope="col">Les plus notées</th>
+
+
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for note in plus_note %}
+                                <tr>
+                                    <td><a href="{% url 'Livres:detail' livre_id=note.livre.id %}"> {{ note.livre.titre }} </a></td>
+
+                                </tr>
+                                {% endfor %}
+
+                                </tbody>
+                            </table>
+
+                        </div>
+                    </div>
+
+
+                    <div class="col-md-12">
+                        <div class="box ">
+                            <div >
+                                <div>
+                                    <table class="table table-striped">
+                                        <thead>
+                                        <tr>
+                                            <th scope="col">Genres</th>
+
+
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for genre in genres %}
+                                        <tr>
+                                            <td><a href="{% url 'Livres:genre_livre' genre_nom=genre.pk %}"> {{ genre.nom }} </a></td>
+
+                                        </tr>
+                                        {% endfor %}
+
+                                        </tbody>
+                                    </table>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!--box droite 3 -->
+
+
+                </div>
+
+            </div>
+
+
+        </div>
+        <!--/droite -->
+
+    </div>
+</div>
+
+
+
+{% endblock %}
+
+
+
+
+{% block javascript %}
+<script type="text/javascript">
+function setRating(rating){
+ $("#livre .fa").each(function (){
+   var value=$(this).data('rating');
+    if(value<=rating){
+     $(this).removeClass('fa-star-o').addClass('fa-star');
+    }else{
+     $(this).removeClass('fa-star').addClass('fa-star-o');
+    }
+ });
+}
+
+/* afficher les doneés d'évaluation de l'utilisateur courant (note,s'il avait ajouter
+le livre aux favoris ou liste a lire au plus tard)  dans l'interface*/
+
+is_favoris=document.getElementById("inFavoris{{livre.id}}").value;
+is_PlusTard=document.getElementById("inPlusTard{{livre.id}}").value
+if (is_favoris==1){
+     document.getElementById("{{livre.id}}favoris").style.color="red";
+   }
+if (is_PlusTard==1){
+     document.getElementById("{{livre.id}}aPlusTard").style.color="red";
+}
+setRating(document.getElementById("noteRating").value);
+
+/* post de formulaire de la note doneé par l'utilisateur au livre */
+function submitform(livre,rating){
+ var type="rating";
+ var book=document.getElementById("bookRating").value;
+ var user=document.getElementById("userRating").value;
+ setRating(rating);
+ $.ajax({
+            type: 'POST',
+            url: '/Livres/'+livre+'/',
+            data:{
+              book:book,
+         	  user:user,
+			  note:rating,
+			  type:type,
+              csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val()
+            },
+            success: function() {
+            }
+ });
+}
+
+function aPlusTard(livre,user){
+ var type="aPlusTard";
+ if (document.getElementById(livre+"aPlusTard").style.color=="red"){
+  document.getElementById(livre+"aPlusTard").style.color="gray";
+ }
+ else{
+  document.getElementById(livre+"aPlusTard").style.color="red";
+ }
+ $.ajax({
+            type: 'POST',
+            url: '/Livres/',
+            data:{
+              book:livre,
+         	  user:user,
+         	  type:type,
+              csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val()
+            },
+            success: function() {
+            }
+ });
+}
+
+function favoris(livre,user){
+ var type="favoris";
+ if (document.getElementById(livre+"favoris").style.color=="red"){
+  document.getElementById(livre+"favoris").style.color="gray";
+ }
+ else{
+  document.getElementById(livre+"favoris").style.color="red";
+ }
+ $.ajax({
+            type: 'POST',
+            url: '/Livres/',
+            data:{
+              book:livre,
+         	  user:user,
+         	  type:type,
+              csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val()
+            },
+            success: function() {
+            }
+ });
+}
+
+function getComment(){
+  var type="comment";
+  var book=document.getElementById("book").value;
+  var user=document.getElementById("user").value;
+  var note=document.getElementById("note").value;
+  var contenue=document.getElementById("contenue").value;
+  if (contenue ==""){
+      return null;
+  }
+  // str=user+":"+contenue+" ----- Date: a l'instant ----- Note:"+note+" <br> <hr>";
+  var str ="<div class='comment'><!-- Comment Box --><div class='comment-box'><div class='comment-text'>"+contenue+"</div> <div class='comment-footer'><div class='comment-info'><span class='comment-author'>"+user+"</span><span class='comment-date'>a l'instant </span><span class='comment-date' >Note :"+note+"</span></div></div></div></div>";
+  document.getElementById('fake_comment').innerHTML = str +  document.getElementById('fake_comment').innerHTML;
+  document.getElementById("contenue").value="";
+  $.ajax({
+            type: 'POST',
+            url: '/Livres/'+book+'/',
+            data:{
+              note:note,
+              book:book,
+              user:user,
+              contenue:contenue,
+              type:type,
+              csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val()
+            },
+            success: function() {
+            }
+ });
+}
+</script>
+{% endblock %}
+

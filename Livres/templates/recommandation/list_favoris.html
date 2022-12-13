@@ -1,0 +1,132 @@
+{% extends 'recommandation/base.html' %}
+{% load staticfiles %}
+{% load my_templatetag %}
+{% block content %}
+
+<div class="container">
+
+    <div class="row">
+        <!--gauche -->
+        <div class="container col-lg-12 col-md-12" >
+            <div class="row">
+                <div class="row">
+                    <div class="box">
+                        <table class="table table-striped">
+                            <thead>
+                            <tr>
+                                <th scope="col">Date</th>
+                                <th scope="col">Note</th>
+                                <th scope="col">Livres</th>
+                                <th scope="col"></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for fav in favoris %}
+                            <tr>
+                                <th scope="row">{{fav.date}}</th>
+                                <td>
+                                    <form id="livre{{fav.livre.id}}" action="" method="post">
+                                                {% csrf_token %}
+                                                <span class="fa fa-star-o" data-rating="1"></span>
+                                                <span class="fa fa-star-o" data-rating="2" ></span>
+                                                <span class="fa fa-star-o" data-rating="3" ></span>
+                                                <span class="fa fa-star-o" data-rating="4"></span>
+                                                <span class="fa fa-star-o" data-rating="5" ></span>
+                                                <input type="hidden" id="bookRating{{fav.id}}" name="book" value="{{fav.livre.id}}"/>
+                                                <input type="hidden" id="userRating{{fav.id}}" name="user" value="{{user.username}}"/>
+                                                <input type="hidden" id="noteRating{{fav.id}}" value="{% get_obj fav.livre user %}"/>
+                                            </form>
+                                </td>
+                                <td><a href="{% url 'Livres:detail' livre_id=fav.livre.id %}"> {{ fav.livre }} </a></td>
+                                <td><span class="fa fa-heart" id="{{fav.livre.id}}favoris" style="color:gray;font-size:25px" onclick="favoris({{fav.livre.id}},{{fav.user.id}})"></span>
+                                   <form>
+                                    {% csrf_token %}
+                                    <input type="hidden" id="inFavoris{{fav.livre.id}}" value="{% in_Favoris fav.livre fav.user %}">
+                                    <input type="hidden" id="book" name="book" value="{{fav.livre.id}}"/>
+                                    <input type="hidden" id="user" name="user" value="{{user.id}}"/>
+                                   </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+
+                            </tbody>
+                        </table>
+                    </div>
+
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+
+        <!--/gauche -->
+
+    </div>
+</div>
+
+
+
+{% endblock %}
+
+
+
+
+
+
+
+{% block javascript %}
+<script type="text/javascript">
+
+ function setRating(rating,id){
+ $("#livre"+id+" .fa").each(function (){
+   var value=$(this).data('rating');
+    if(value<=rating){
+     $(this).removeClass('fa-star-o').addClass('fa-star');
+    }else{
+     $(this).removeClass('fa-star').addClass('fa-star-o');
+    }
+ });
+ }
+ {% for fav in favoris %}
+  setRating(document.getElementById("noteRating{{fav.id}}").value,{{fav.livre.id}});
+ {% endfor %}
+
+ {% for fav in favoris %}
+   is_favoris=document.getElementById("inFavoris{{fav.livre.id}}").value;
+
+   if (is_favoris==1){
+     document.getElementById("{{fav.livre.id}}favoris").style.color="red";
+   }
+
+ {% endfor %}
+
+
+function favoris(livre,user){
+ var type="favoris";
+ if (document.getElementById(livre+"favoris").style.color=="red"){
+  document.getElementById(livre+"favoris").style.color="gray";
+ }
+ else{
+  document.getElementById(livre+"favoris").style.color="red";
+ }
+ $.ajax({
+            type: 'POST',
+            url: '/Livres/favoris/',
+            data:{
+              book:livre,
+         	  user:user,
+         	  type:type,
+              csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val()
+            },
+            success: function() {
+            }
+ });
+}
+
+
+
+</script>
+{% endblock %}

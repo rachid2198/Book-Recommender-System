@@ -1,0 +1,304 @@
+{% extends 'recommandation/base.html' %}
+{% load staticfiles %}
+{% load my_templatetag %}
+{% block content %}
+<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+
+<div class="container">
+
+    <div class="row">
+        <!--gauche -->
+        <div class="container col-lg-8 col-md-12" >
+
+            <div class="row">
+                <div class="row">
+
+                    <div class="box">
+                        <div class="col-lg-12 text-center">
+                            <h2>Liste des recommandations</h2>
+                        </div>
+                    </div>
+
+
+{% for livre in livres %}
+                    <div class="box">
+                        <div class="col-lg-12">
+
+                            <h3>
+                                <a href="{% url 'Livres:detail' livre_id=livre.id %}"> {{ livre.titre }} </a>
+                            </h3>
+
+                            <div class="container col-lg-12">
+                                <div class="row">
+                                    <div class="col-lg-4">
+                                        <a href=" {% url 'Livres:detail' livre_id=livre.id %}">
+                                            <img class="img-responsive img-border img-left" src="{{ livre.image_livre }}" alt="{{ livre.titre }}" style=" max-width: 150px">
+                                            <!-- <img class="img-responsive img-border img-left" src="livre.image.url" alt="{{ livre.titre }}" style=" max-width: 150px"> -->
+                                        </a>
+                                        {% if user.is_authenticated %}
+                                        <div>
+
+                                            <span class="fa fa-heart" id="{{livre.id}}favoris" style="color:gray;font-size:25px" onclick="favoris({{livre.id}},{{user.id}})"></span>
+                                            <input type="hidden" id="inFavoris{{livre.id}}" value="{% in_Favoris livre user %}">
+                                            <br>
+                                            <span class="fa fa-clock-o" id="{{livre.id}}aPlusTard" style="color:gray;font-size:25px" onclick="aPlusTard({{livre.id}},{{user.id}})"></span>
+                                            <input type="hidden" id="inPlusTard{{livre.id}}" value="{% in_aLirePlusTard livre user %}">
+
+                                        </div>
+                                        {% endif %}
+                                    </div>
+
+
+
+                                    <div class="col-lg-8">
+                                        <p>Auteur :
+                                            {% for auteur in livre.auteurs.all %}
+                                            <a href="{% url 'Livres:livre_par_auteur' auteur_id=auteur.id %}"> {{ auteur.nom}}</a>
+                                            {% endfor %}
+                                        </p>
+                                        <p>Date de publication originale : {{ livre.date_parution }}</p>
+                                        <p>Genres :
+                                            {% for genre in livre.genres.all %}
+                                            <a href="/"> {{ genre.nom}} </a>
+                                            {% endfor %}
+
+                                        </p>
+
+                                        <div class="star-rating">
+                                            <form id="{{livre.id}}">
+                                                {% csrf_token %}
+                                                <span class="fa fa-star-o" data-rating="1" onclick="submitform({{livre.id}},1)"></span>
+                                                <span class="fa fa-star-o" data-rating="2" onclick="submitform({{livre.id}},2)"></span>
+                                                <span class="fa fa-star-o" data-rating="3" onclick="submitform({{livre.id}},3)"></span>
+                                                <span class="fa fa-star-o" data-rating="4" onclick="submitform({{livre.id}},4)"></span>
+                                                <span class="fa fa-star-o" data-rating="5" onclick="submitform({{livre.id}},5)"></span>
+                                                {% if user.is_authenticated %}
+
+                                                <input type="hidden" id="book{{livre.id}}" name="book" value="{{livre.id}}"/>
+                                                <input type="hidden" id="user{{livre.id}}" name="user" value="{{user.username}}"/>
+                                                <input type="hidden" id="note{{livre.id}}" value="{% get_obj livre user %}"/>
+                                                {% endif %}
+                                            </form>
+                                        </div>
+
+                                        <hr class="detail-separator">
+
+                                        <div>
+                                            <p>Description :</p>
+                                            <span class="more">{{ livre.desctiption }}</span>
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% endfor %}
+
+
+                </div>
+
+            </div>
+        </div>
+        <!--/gauche -->
+
+
+        <!--droite -->
+
+        <div class="container col-lg-3 col-md-12">
+            <div class="container-fluid">
+                <div class="row">
+                    <!--box droite 1 -->
+                    <div class="col-md-12">
+                        <div class="box ">
+
+                            <table class="table table-striped">
+                                <thead>
+                                <tr>
+                                    <th scope="col">Les mieux notées</th>
+
+
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for livre in top_livres %}
+                                <tr>
+                                    <td><a href="{% url 'Livres:detail' livre_id=livre.id %}"> {{ livre.titre }} </a></td>
+
+                                </tr>
+                                {% endfor %}
+
+                                </tbody>
+                            </table>
+
+                        </div>
+                    </div>
+
+
+
+                    <!--box droite 2 -->
+                    <div class="col-md-12">
+                        <div class="box ">
+
+                            <table class="table table-striped">
+                                <thead>
+                                <tr>
+                                    <th scope="col">Les plus notées</th>
+
+
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for note in plus_note %}
+                                <tr>
+                                    <td><a href="{% url 'Livres:detail' livre_id=note.livre.id %}"> {{ note.livre.titre }} </a></td>
+
+                                </tr>
+                                {% endfor %}
+
+                                </tbody>
+                            </table>
+
+                        </div>
+                    </div>
+
+
+                    <div class="col-md-12">
+                        <div class="box ">
+                            <div >
+                                <div>
+                                    <table class="table table-striped">
+                                        <thead>
+                                        <tr>
+                                            <th scope="col">Genres</th>
+
+
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for genre in genres %}
+                                        <tr>
+                                            <td><a href="{% url 'Livres:genre_livre' genre_nom=genre.pk %}"> {{ genre.nom }} </a></td>
+
+                                        </tr>
+                                        {% endfor %}
+
+                                        </tbody>
+                                    </table>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!--box droite 3 -->
+
+
+                </div>
+
+            </div>
+
+
+        </div>
+        <!--/droite -->
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+{% block javascript %}
+<script>
+
+function setRating(livre,rating){
+ console.log(rating);
+ $("#"+livre+" .fa").each(function (){
+   var value=$(this).data('rating');
+    if(value<=rating){
+     $(this).removeClass('fa-star-o').addClass('fa-star');
+    }else{
+     $(this).removeClass('fa-star').addClass('fa-star-o');
+    }
+ });
+}
+
+ {% for livre in livres %}
+   is_favoris=document.getElementById("inFavoris{{livre.id}}").value;
+   is_PlusTard=document.getElementById("inPlusTard{{livre.id}}").value
+   rating=document.getElementById("note{{livre.id}}").value;
+   setRating({{livre.id}},rating);
+   if (is_favoris==1){
+     document.getElementById("{{livre.id}}favoris").style.color="red";
+   }
+   if (is_PlusTard==1){
+     document.getElementById("{{livre.id}}aPlusTard").style.color="red";
+   }
+ {% endfor %}
+
+function submitform(livre,rating){
+ var type="rating";
+ setRating(livre,rating);
+ $.ajax({
+            type: 'POST',
+            url: '/Livres/',
+            data:{
+              book:$("#book"+livre).val(),
+         	  user:$("#user"+livre).val(),
+			  note:rating,
+			  type:type,
+              csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val()
+            },
+            success: function() {
+            }
+ });
+}
+
+function aPlusTard(livre,user){
+ var type="aPlusTard";
+ if (document.getElementById(livre+"aPlusTard").style.color=="red"){
+  document.getElementById(livre+"aPlusTard").style.color="gray";
+ }
+ else{
+  document.getElementById(livre+"aPlusTard").style.color="red";
+ }
+ $.ajax({
+            type: 'POST',
+            url: '/Livres/',
+            data:{
+              book:livre,
+         	  user:user,
+         	  type:type,
+              csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val()
+            },
+            success: function() {
+            }
+ });
+}
+
+function favoris(livre,user){
+ var type="favoris";
+ if (document.getElementById(livre+"favoris").style.color=="red"){
+  document.getElementById(livre+"favoris").style.color="gray";
+ }
+ else{
+  document.getElementById(livre+"favoris").style.color="red";
+ }
+ $.ajax({
+            type: 'POST',
+            url: '/Livres/',
+            data:{
+              book:livre,
+         	  user:user,
+         	  type:type,
+              csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val()
+            },
+            success: function() {
+            }
+ });
+}
+
+</script>
+{% endblock %}

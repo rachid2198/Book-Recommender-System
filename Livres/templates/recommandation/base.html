@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Home</title>
+
+    
+
+    {% load static %}
+    <link rel="shortcut icon" href="{% static 'recommandation/img/favicon.png' %}" type="image/x-icon"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'recommandation/css/bootstrap.min.css' %}" />
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="{% static 'recommandation/css/home.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'recommandation/css/comment_css.css' %}">
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Josefin+Slab:100,300,400,600,700,100italic,300italic,400italic,600italic,700italic" rel="stylesheet" type="text/css">
+
+
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+    <script src="https://google-code-prettify.googlecode.com/svn/loader/run_prettify.js"></script>
+
+
+
+    <!--[endif]-->
+
+</head>
+
+<body>
+
+<div class="brand">Recommandation livres</div>
+<div class="address-bar"></div>
+
+<!-- Navigation -->
+<nav class="navbar navbar-default " role="navigation">
+    <div class="container">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <!-- navbar-brand is hidden on larger screens, but visible when the menu is collapsed -->
+            <a class="navbar-brand" href="home.html">Recommandation livres</a>
+        </div>
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav">
+                <li>
+                    <a style="padding-left:0px; margin_left:0px; " href="{% url 'Livres:index'  %}">accueil</a>
+                </li>
+                <li>
+                    <a href="">a propos</a>
+                </li>
+                <li>
+                    <a href="">Livre</a>
+                </li>
+                <li>
+                    {% if user.is_authenticated %}
+                    <a href="{% url 'Livres:recommandation'  %}">Recommandation</a>
+                    {% endif %}
+                    {% if user.is_authenticated %}
+                    {% endif %}
+                </li>
+
+                <li class="pull-right">
+
+                    {% if user.is_authenticated %}
+                    <ul class="nav navbar-nav" >
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><b>{{user.username}}</b> <b class="caret"></b></a>
+
+                            <ul class="dropdown-menu">
+                                <li><a href="{% url 'Livres:profile'%}"><span class="glyphicon glyphicon-user"></span> Profil</a></li>
+                                {% if request.user.is_superuser %}
+                                <li><a href="/admin"><span class="glyphicon glyphicon-cog"></span> Administration</a></li>
+                                {% endif %}
+                                <li class="divider"></li>
+                                <li><a href="{% url 'Livres:list_note'  %}"><span class="glyphicon glyphicon-star"></span> livres noté</a></li>
+                                <li><a href="{% url 'Livres:favoris'  %}"><span class="glyphicon glyphicon-heart"></span> favoris</a></li>
+                                <li><a href="{% url 'Livres:a_lire'  %}"><span class="glyphicon glyphicon-time"></span> à lire plus tard </a></li>
+                                <li class="divider"></li>
+                                <li><a href="{% url 'logout'  %}"><span class="glyphicon glyphicon-log-out"></span> Deconnexion</a></b></li>
+
+                            </ul>
+                        </li>
+                            {% else %}
+                        <a href="{% url 'login'  %}"><b>connexion</b></a>
+
+
+                        </li>
+                        <li class="pull-right">
+                            <a href="{% url 'register'  %}"><b>inscription</b></a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </li>
+            </ul>
+
+        </div>
+
+
+    </div>
+    <!-- /.navbar-collapse -->
+    <!-- /.container -->
+</nav>
+
+<div class="container-fluid">
+    <div class="row box">
+        <div class="col-sm-6 col-sm-offset-3">
+            <div id="imaginary_container">
+                <form class="input-group stylish-input-group"  action="" method="get" accept-charset="utf-8" >
+                    <input type="hidden" name="type" value="search">
+
+
+                    <input type="text"  id="searchForm" class="form-control"  placeholder="Search"  name="query" >
+                    <span class="input-group-addon">
+                        <button type="submit">
+                            <span class="glyphicon glyphicon-search"></span>
+                        </button>
+                    </span>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- /Navigation -->
+<!--corp de page -->
+{% block content%}{% endblock %}
+
+
+
+
+<!--/corp de page -->
+
+<!-- /.container -->
+
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 text-center">
+                <p>Copyright &copy;recommandation livres 2018</p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!--<script>
+        $(function() {
+
+        $(".my-rating").starRating({
+          initialRating: 2,
+          starSize: 25
+
+        });
+      });
+    </script> -->
+<!-- jQuery -->
+<script src="{% static 'recommandation/js/jquery.js' %}"></script>
+
+<!-- Bootstrap Core JavaScript -->
+
+<script src=" http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+<script src="https //ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+
+
+    {% block javascript %}
+    {% endblock %}
+
+<script>
+        $(document).ready(function() {
+        // Configure/customize these variables.
+        var showChar = 200;  // How many characters are shown by default
+        var ellipsestext = "...";
+        var moretext = "Plus >";
+        var lesstext = "Moins";
+
+
+        $('.more').each(function() {
+            var content = $(this).html();
+
+            if(content.length > showChar) {
+
+                var c = content.substr(0, showChar);
+                var h = content.substr(showChar, content.length - showChar);
+
+                var html = c + '<span class="moreellipses">' + ellipsestext+ '&nbsp;</span><span class="morecontent"><span>' + h + '</span>&nbsp;&nbsp;<a href="" class="morelink">' + moretext + '</a></span>';
+
+                $(this).html(html);
+            }
+
+        });
+
+        $(".morelink").click(function(){
+            if($(this).hasClass("less")) {
+                $(this).removeClass("less");
+                $(this).html(moretext);
+            } else {
+                $(this).addClass("less");
+                $(this).html(lesstext);
+            }
+            $(this).parent().prev().toggle();
+            $(this).prev().toggle();
+            return false;
+        });
+    });
+
+    </script>
+
+
+</body>
+
+</html>

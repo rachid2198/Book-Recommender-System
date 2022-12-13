@@ -1,0 +1,84 @@
+{% extends 'recommandation/base.html' %}
+{% load staticfiles %}
+{% load my_templatetag %}
+{% block content %}
+
+<div class="container">
+
+    <div class="row">
+        <!--gauche -->
+        <div class="container col-lg-12 col-md-12" >
+            <div class="row">
+                <div class="row">
+                    <div class="box">
+                        <table class="table table-striped">
+                            <thead>
+                            <tr>
+                                <th scope="col">Date</th>
+                                <th scope="col">Note</th>
+                                <th scope="col">Livres</th>
+
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for note in notes %}
+                            <tr>
+                                <th scope="row">{{note.date}}</th>
+                                <td>
+                                   <form id="livre{{note.livre.id}}" action="" method="post">
+                                                {% csrf_token %}
+                                                <span class="fa fa-star-o" data-rating="1"></span>
+                                                <span class="fa fa-star-o" data-rating="2" ></span>
+                                                <span class="fa fa-star-o" data-rating="3" ></span>
+                                                <span class="fa fa-star-o" data-rating="4"></span>
+                                                <span class="fa fa-star-o" data-rating="5" ></span>
+                                                <input type="hidden" id="bookRating{{note.id}}" name="book" value="{{note.livre.id}}"/>
+                                                <input type="hidden" id="userRating{{note.id}}" name="user" value="{{user.username}}"/>
+                                                <input type="hidden" id="noteRating{{note.id}}" value="{% get_obj note.livre user %}"/>
+                                            </form>
+                                </td>
+                                <td><a href="{% url 'Livres:detail' livre_id=note.livre.id %}"> {{ note.livre }} </a></td>
+
+                            </tr>
+                            {% endfor %}
+
+                            </tbody>
+                        </table>
+                    </div>
+
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+
+        <!--/gauche -->
+
+    </div>
+</div>
+
+{% endblock %}
+
+{% block javascript %}
+<script>
+ function setRating(rating,id){
+ $("#livre"+id+" .fa").each(function (){
+   var value=$(this).data('rating');
+    if(value<=rating){
+     $(this).removeClass('fa-star-o').addClass('fa-star');
+    }else{
+     $(this).removeClass('fa-star').addClass('fa-star-o');
+    }
+ });
+ }
+ {% for note in notes %}
+  setRating(document.getElementById("noteRating{{note.id}}").value,{{note.livre.id}});
+ {% endfor %}
+</script>
+{% endblock %}
+
+
+

@@ -1,0 +1,104 @@
+{% extends 'recommandation/base.html' %}
+{% load staticfiles %}
+{% load my_templatetag %}
+{% block content %}
+
+<div class="container">
+
+    <div class="row">
+        <!--gauche -->
+        <div class="container col-lg-12 col-md-12" >
+            <div class="row">
+                <div class="row">
+                    <div class="box">
+                        <table class="table table-striped">
+                            <thead>
+                            <tr>
+                                <th scope="col">Date</th>
+                                <th scope="col">Livres</th>
+                                <th scope="col"></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for livre_a_lire in a_lire %}
+                            <tr>
+                                <th scope="row">{{livre_a_lire.date}}</th>
+                                <td><a href="{% url 'Livres:detail' livre_id=livre_a_lire.livre.id %}"> {{ livre_a_lire.livre }} </a></td>
+                                <td>
+                                    <span class="fa fa-clock-o" id="{{livre_a_lire.livre.id}}aPlusTard" style="color:gray;font-size:25px" onclick="aPlusTard({{livre_a_lire.livre.id}},{{livre_a_lire.user.id}})"></span>
+                                   <form>
+                                    {% csrf_token %}
+                                    <input type="hidden" id="inPlusTard{{livre_a_lire.livre.id}}" value="{% in_aLirePlusTard livre_a_lire.livre livre_a_lire.user %}">
+                                    <input type="hidden" id="book" name="book" value="{{livre_a_lire.livre.id}}"/>
+                                    <input type="hidden" id="user" name="user" value="{{.livre_a_lire.user.id}}"/>
+                                   </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+
+                            </tbody>
+                        </table>
+                    </div>
+
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+
+        <!--/gauche -->
+
+    </div>
+</div>
+
+
+
+{% endblock %}
+
+
+
+
+
+
+
+{% block javascript %}
+<script type="text/javascript">
+
+ {% for livre_a_lire in a_lire %}
+   is_PlusTard=document.getElementById("inPlusTard{{livre_a_lire.livre.id}}").value
+   if (is_PlusTard==1){
+     document.getElementById("{{livre_a_lire.livre.id}}aPlusTard").style.color="red";
+   }
+
+ {% endfor %}
+
+
+function aPlusTard(livre,user){
+ var type="aPlusTard";
+ if (document.getElementById(livre+"aPlusTard").style.color=="red"){
+  document.getElementById(livre+"aPlusTard").style.color="gray";
+ }
+ else{
+  document.getElementById(livre+"aPlusTard").style.color="red";
+ }
+ $.ajax({
+            type: 'POST',
+            url: '/Livres/a_lire/',
+            data:{
+              book:livre,
+         	  user:user,
+         	  type:type,
+              csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val()
+            },
+            success: function() {
+            }
+ });
+}
+
+
+
+</script>
+{% endblock %}

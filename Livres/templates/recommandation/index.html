@@ -1,0 +1,107 @@
+{% extends 'recommandation/base.html'%}
+
+{% block content%}
+ {% if results_found %}
+  {% include 'recommandation/list.html' %}
+ {% else %}
+<div class="box text-center">
+    <h1> pas de resultat </h1>
+
+</div>
+
+ {% endif %}
+{% endblock %}
+{% block javascript %}
+{% if results_found %}
+<script>
+
+function setRating(livre,rating){
+ console.log(rating);
+ $("#"+livre+" .fa").each(function (){
+   var value=$(this).data('rating');
+    if(value<=rating){
+     $(this).removeClass('fa-star-o').addClass('fa-star');
+    }else{
+     $(this).removeClass('fa-star').addClass('fa-star-o');
+    }
+ });
+}
+
+ {% for livre in livres %}
+   is_favoris=document.getElementById("inFavoris{{livre.id}}").value;
+   is_PlusTard=document.getElementById("inPlusTard{{livre.id}}").value
+   rating=document.getElementById("note{{livre.id}}").value;
+   setRating({{livre.id}},rating);
+   if (is_favoris==1){
+     document.getElementById("{{livre.id}}favoris").style.color="red";
+   }
+   if (is_PlusTard==1){
+     document.getElementById("{{livre.id}}aPlusTard").style.color="red";
+   }
+ {% endfor %}
+
+function submitform(livre,rating){
+ var type="rating";
+ setRating(livre,rating);
+ $.ajax({
+            type: 'POST',
+            url: '/Livres/',
+            data:{
+              book:$("#book"+livre).val(),
+         	  user:$("#user"+livre).val(),
+			  note:rating,
+			  type:type,
+              csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val()
+            },
+            success: function() {
+            }
+ });
+}
+
+function aPlusTard(livre,user){
+ var type="aPlusTard";
+ if (document.getElementById(livre+"aPlusTard").style.color=="red"){
+  document.getElementById(livre+"aPlusTard").style.color="gray";
+ }
+ else{
+  document.getElementById(livre+"aPlusTard").style.color="red";
+ }
+ $.ajax({
+            type: 'POST',
+            url: '/Livres/',
+            data:{
+              book:livre,
+         	  user:user,
+         	  type:type,
+              csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val()
+            },
+            success: function() {
+            }
+ });
+}
+
+function favoris(livre,user){
+ var type="favoris";
+ if (document.getElementById(livre+"favoris").style.color=="red"){
+  document.getElementById(livre+"favoris").style.color="gray";
+ }
+ else{
+  document.getElementById(livre+"favoris").style.color="red";
+ }
+ $.ajax({
+            type: 'POST',
+            url: '/Livres/',
+            data:{
+              book:livre,
+         	  user:user,
+         	  type:type,
+              csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val()
+            },
+            success: function() {
+            }
+ });
+}
+
+</script>
+{% endif %}
+{% endblock %}

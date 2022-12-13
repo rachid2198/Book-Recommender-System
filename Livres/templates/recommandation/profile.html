@@ -1,0 +1,202 @@
+{% extends 'recommandation/base.html' %}
+{% load staticfiles %}
+{% load my_templatetag %}
+{% block content %}
+
+
+
+
+<div class="container">
+
+    <div class="row">
+        <!--gauche -->
+        <div class="container col-lg-8 col-md-12" >
+            <div class="row">
+                <div class="row">
+                    <div class="box">
+                        <div class="text-center">
+                            <h2>Votre Profil :</h2>
+                        </div>
+
+                        <br>
+                        <hr/>
+                        <br>
+                        <div id="infos" style="font-size:20px">
+                            <form method="POST" action="{% url 'Livres:profile'%}" id="form">
+                                {% csrf_token %}
+                                <label><b>Pays:</b> </label>
+                                <span id="paysaff">{{ profil.pays }}</span>
+                                <br>
+                                <label><b>Specialite:</b> </label>
+                                <span id="specialiteaff">{{ profil.specialite }}</span>
+                                <br>
+                                <label><b>Age:</b> </label>
+                                <span id="ageaff">{{ profil.age }}</span>
+                                <br>
+                                <label><b>langues:</b> </label>
+                                <span id="languesaff">
+                                    <ul>
+                                        {% for langue in profil.langues.all %}
+                                        <li>{{langue.nom}}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </span>
+                                <br>
+                                <label><b>Genres préférés:</b> </label>
+                                <span id="genreaff">
+                                    <ul>
+                                        {% for genre in profil.genre.all %}
+                                        <li>{{genre.nom}}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </span>
+                                <br>
+                                <input type="hidden" id="paysvalue" value=""/>
+                                <input type="hidden" id="specialitevalue" value=""/>
+                                <input type="hidden" id="agevalue" value=""/>
+                                <input type="hidden" id="languesvalue" value=""/>
+                                <input type="hidden" id="genresvalue" value=""/>
+                                <input type="hidden" id="buttons" value=""/>
+                                <span id="boutons">
+                                    <button type="button" onclick="afficherform()"> Modifier</button>
+                                </span>
+                            </form>
+                        </div>
+
+                    </div>
+                </div></div></div>
+
+
+
+
+        <!--/gauche -->
+
+
+                    <!--droite -->
+
+                    <div class="container col-lg-3 col-md-12">
+                        <div class="container-fluid">
+                            <div class="row">
+                                <!--box droite 1 -->
+                                <div class="col-md-12">
+                                    <div class="box ">
+
+                                        <table class="table table-striped">
+                                            <thead>
+                                            <tr>
+                                                <th scope="col">Livres a lire plus tard</th>
+
+
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            {% for instance in alire %}
+                                            <tr>
+                                                <td><a href="{% url 'Livres:detail' livre_id=instance.livre.id %}"> {{ instance.livre }} </a></td>
+                                            </tr>
+                                            {% endfor %}
+
+                                            </tbody>
+                                            <tfoot>
+                                            <tr>
+                                                <td><a href="{% url 'Livres:a_lire'  %}"> <b>Acceder a la liste entiére</b></a></td>
+                                            </tr>
+                                            </tfoot>
+                                        </table>
+
+                                    </div>
+                                </div>
+
+
+
+                                <!--box droite 2 -->
+                                <div class="col-md-12">
+                                    <div class="box">
+
+                                        <table class="table table-striped">
+                                            <thead>
+                                            <tr>
+                                                <th scope="col">Favoris</th>
+
+
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            {% for instance in Favoris %}
+                                            <tr>
+                                                <td><a href="{% url 'Livres:detail' livre_id=instance.livre.id %}"> {{ instance.livre }} </a></td>
+                                            </tr>
+                                            {% endfor %}
+
+                                            </tbody>
+                                            <tfoot>
+                                            <tr>
+                                                <td><a href="{% url 'Livres:favoris'  %}"> <b>Acceder a la liste entiére</b></a></td>
+                                            </tr>
+                                            </tfoot>
+                                        </table>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--/droite -->
+
+                </div>
+            </div>
+
+
+{% endblock %}
+
+
+
+{% block javascript %}
+
+<script>
+    function delet(){
+    document.getElementById('ageaff').innerHTML= document.getElementById('agevalue').value;
+    document.getElementById('paysaff').innerHTML= document.getElementById('paysvalue').value;
+    document.getElementById('specialiteaff').innerHTML= document.getElementById('specialitevalue').value;
+    document.getElementById('languesaff').innerHTML= document.getElementById('languesvalue').value;
+    document.getElementById('genreaff').innerHTML= document.getElementById('genresvalue').value;
+    document.getElementById('boutons').innerHTML= document.getElementById('buttons').value;
+    }
+
+    function afficherform(){
+    var l="<br> <select id='langueList' name='langueList' multiple>";
+    {% for langue in langues %}
+      {% if langue in profil.langues.all%}
+       l=l+"<option value='{{langue.nom}}' selected>{{langue.nom}}</option>";
+      {% else %}
+       l=l+"<option value='{{langue.nom}}'>{{langue.nom}}</option>";
+      {% endif %}
+    {% endfor %}
+    l=l+"</select>";
+    var g="<br> <select id='genreList' name='genreList' multiple>";
+    {% for genre in genres %}
+      {% if genre in profil.genre.all %}
+       g=g+"<option value='{{genre.nom}}' selected>{{genre.nom}}</option>";
+      {% else %}
+       g=g+"<option value='{{genre.nom}}'>{{genre.nom}}</option>";
+      {% endif %}
+    {% endfor %}
+    g=g+"</select>";
+    document.getElementById('agevalue').value=document.getElementById('ageaff').innerHTML;
+    document.getElementById('paysvalue').value=document.getElementById('paysaff').innerHTML;
+    document.getElementById('specialitevalue').value=document.getElementById('specialiteaff').innerHTML;
+    document.getElementById('languesvalue').value=document.getElementById('languesaff').innerHTML;
+    document.getElementById('genresvalue').value=document.getElementById('genreaff').innerHTML;
+    document.getElementById('buttons').value=document.getElementById('boutons').innerHTML;
+    document.getElementById('paysaff').innerHTML="<br> <input type='text' id='pays' name='pays'>";
+    document.getElementById('ageaff').innerHTML="<br> <input type='number' id='age' name='age'>";
+    document.getElementById('specialiteaff').innerHTML="<br> <input type='text' id='specialite' name='specialite'/>";
+    document.getElementById('genreaff').innerHTML=g;
+    document.getElementById('languesaff').innerHTML=l;
+    document.getElementById('boutons').innerHTML="<br> <input type='submit' > <button type='button' onclick='delet()'>Annuler</button>"
+    document.getElementById('age').value=document.getElementById('agevalue').value;
+    document.getElementById('pays').value=document.getElementById('paysvalue').value;
+    document.getElementById('specialite').value=document.getElementById('specialitevalue').value;
+    }
+ </script>
+{% endblock %}

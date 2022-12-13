@@ -1,0 +1,40 @@
+<DOCTYPE html>
+    <html>
+    <head>
+        <title>starRating</title>
+
+        {% load static %}
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+        <script src="https://google-code-prettify.googlecode.com/svn/loader/run_prettify.js"></script>
+        <link rel="stylesheet" type="text/css" href="{% static 'recommandation/src/css/star-rating-svg.css' %}">
+
+
+</head>
+    <body>
+
+
+
+<!-- example using gradient -->
+<div class="my-rating" ></div>
+
+<script>
+    $(function() {
+
+
+    // specify the gradient start and end for the selected stars
+    $(".my-rating").starRating({
+      initialRating: 2,
+      starSize: 25
+
+    });
+
+
+  });
+</script>
+
+
+<script src=" {% static 'recommandation/src/jquery.star-rating-svg.js' %}"></script>
+    </body>
+    </html>
+
+
